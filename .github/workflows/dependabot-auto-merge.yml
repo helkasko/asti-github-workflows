@@ -1,0 +1,26 @@
+# Adapted from:
+# - https://github.com/dependabot/fetch-metadata#enabling-auto-merge
+# - https://docs.github.com/en/code-security/dependabot/working-with-dependabot/automating-dependabot-with-github-actions#enable-auto-merge-on-a-pull-request
+
+name: Dependabot auto-merge
+on:
+  workflow_call:
+    secrets:
+      personal-access-token:
+        required: true
+
+jobs:
+  merge-pr:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.pull_request.user.login == 'dependabot[bot]' }}
+    steps:
+      - name: Dependabot metadata
+        id: dependabot-metadata
+        uses: dependabot/fetch-metadata@v1
+      - name: Enable auto-merge for Dependabot PR
+        # Only merge minor and patch versions
+        if: ${{ steps.dependabot-metadata.outputs.update-type == 'version-update:semver-minor' || steps.dependabot-metadata.outputs.update-type == 'version-update:semver-patch' }}
+        run: gh pr merge --auto --squash "$PR_URL"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GITHUB_TOKEN: ${{ secrets.personal-access-token }}

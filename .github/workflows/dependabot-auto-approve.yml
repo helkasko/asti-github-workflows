@@ -1,0 +1,42 @@
+# Adapted from:
+# - https://github.com/dependabot/fetch-metadata#auto-approving
+# - https://docs.github.com/en/code-security/dependabot/working-with-dependabot/automating-dependabot-with-github-actions#approve-a-pull-request
+
+name: Dependabot auto-approve
+on:
+  workflow_call:
+    secrets:
+      github-token:
+        description: "The default GitHub access token"
+        required: true
+
+jobs:
+  approve-pr:
+    runs-on: ubuntu-latest
+    # Checking the author will prevent the action run failing on non-Dependabot PRs
+    if: ${{ github.event.pull_request.user.login == 'dependabot[bot]' }}
+    steps:
+      - name: Dependabot metadata
+        id: dependabot-metadata
+        uses: dependabot/fetch-metadata@v1
+      - uses: actions/checkout@v3
+      - name: Approve PR if not already approved
+        # Only approve minor and patch versions
+        if: ${{ steps.dependabot-metadata.outputs.update-type == 'version-update:semver-minor' || steps.dependabot-metadata.outputs.update-type == 'version-update:semver-patch' }}
+        run: |
+          gh pr checkout "$PR_URL" # sets the upstream metadata for `gh pr status`
+          if [ "$(gh pr status --json reviewDecision -q .currentBranch.reviewDecision)" != "APPROVED" ]; then
+            gh pr review --approve "$PR_URL"
+            echo "Successfully approved Dependabot PR $PR_URL"
+          else
+            echo "PR already approved, skipping additional approvals to minimize emails/notification noise."
+          fi
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GITHUB_TOKEN: ${{ secrets.github-token }}
+      - name: Label major version update PR as needing manual review
+        if: ${{ steps.dependabot-metadata.outputs.update-type == 'version-update:semver-major' }}
+        run: gh pr edit "$PR_URL" --add-label "manual review needed"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GITHUB_TOKEN: ${{ secrets.github-token }}

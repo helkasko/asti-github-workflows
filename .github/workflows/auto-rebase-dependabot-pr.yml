@@ -1,0 +1,52 @@
+# This GitHub action is used to automatically rebase open Dependabot pull requests one at a time. For this to work
+# properly, the "rebase-strategy" setting should be set to "disabled" in the dependabot.yml configuration file.
+#
+# By default, Dependabot already automatically rebases open pull requests when it detects any changes to a pull request.
+# However, this seems to work only when conflicts emerge between the PR and the target branch. Since we have the
+# "Require branches to be up to date before merging" setting enabled in GitHub, Dependabot doesn't always automatically
+# rebase a PR if there are no conflicts in the PR. Thus, the only way to trigger a rebase for these Dependabot PRs is to
+# manually rebase the PR, e.g., by commenting "@dependabot rebase" on the PR.
+#
+# Additionally, another problem with Dependabot's automatic rebase is that it doesn't trigger the rebases sequentially
+# but rather concurrently. This, in turn, causes a lot of unnecessary CI builds when the "Require branches to be up to
+# date before merging" setting is enabled since a PR might be rebased multiple times (see https://github.com/dependabot/dependabot-core/issues/2204).
+# To mitigate this issue, this GitHub action is triggered on each push to the master branch and triggers Dependabot to
+# only rebase the oldest PR. This way, we can ensure that the Dependabot PRs are only rebased one at a time, i.e.,
+# sequentially and thus minimizing the amount of rebases and CI builds needed.
+name: Auto-rebase Dependabot PR
+on:
+  workflow_call:
+    secrets:
+      github-token:
+        description: "The default GitHub access token"
+        required: true
+
+jobs:
+  rebase-dependabot-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Rebase oldest Dependabot PR not requiring a manual review on top of the target branch
+        run: |
+          # Get the oldest Dependabot PR URL of the list of PRs not needing manual review
+          # Description of jq expression:
+          # 1. Reverse the PR list to get the oldest PR first
+          # 2. Map the "labels" object of each PR to only the name of the label and reassign the mapped array to the
+          #    ".labels" key
+          # 3. Filter out any PRs that have the "manual review needed" label
+          # 4. Get the PR URL of the first item
+          PR_URL=$(
+            gh pr list \
+              --author app/dependabot \
+              --json labels,url \
+              --jq 'reverse | map(.labels |= map(.name)) | map(select(.labels | index("manual review needed") | not)) | .[0].url'
+          )
+          if [ "$PR_URL" != "" ]; then
+            gh pr checkout "$PR_URL"
+            gh pr comment -b "@dependabot rebase"
+            echo "Successfully triggered a rebase of the Dependabot PR $PR_URL"
+          else
+            echo "No open Dependabot PRs to rebase"
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.github-token }}
