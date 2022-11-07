@@ -36,7 +36,15 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.github-token }}
       - name: Label major version update PR as needing manual review
         if: ${{ steps.dependabot-metadata.outputs.update-type == 'version-update:semver-major' }}
-        run: gh pr edit "$PR_URL" --add-label "manual review needed"
+        run: |
+          # Create "manual review needed" label if it doesn't exist
+          if ! gh label list --json name | grep -q "manual review needed"; then
+            gh label create \
+              manual review needed \
+              --description "Indicates that the Dependabot PR requires a manual review, e.g., because of a major update" \
+              --color DE9DA2
+          fi
+          gh pr edit "$PR_URL" --add-label "manual review needed"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GITHUB_TOKEN: ${{ secrets.github-token }}
