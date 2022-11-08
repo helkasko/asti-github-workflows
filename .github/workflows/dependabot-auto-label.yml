@@ -52,6 +52,20 @@ jobs:
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GITHUB_TOKEN: ${{ secrets.github-token }}
+      - name: Add a label if the dependency is a transitive dependency
+        if: ${{ steps.dependabot-metadata.outputs.dependency-type == 'indirect' }}
+        run: |
+          # Create "transitive" label if it doesn't exist
+          if ! gh label list --json name | grep -q "transitive"; then
+            gh label create \
+              transitive \
+              --description "Related to the update of a transitive, i.e., indirect dependency" \
+              --color 12C678
+          fi
+          gh pr edit "$PR_URL" --add-label "transitive"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GITHUB_TOKEN: ${{ secrets.github-token }}
       - name: Add a label if the dependency update is related to a security alert
         if: ${{ steps.dependabot-metadata.outputs.alert-state != '' }}
         run: |
