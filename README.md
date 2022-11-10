@@ -100,7 +100,7 @@ jobs:
       contents: read
       issues: read
       pull-requests: write
-    uses:  helkasko/asti-github-workflows/.github/workflows/auto-rebase-dependabot-pr.yml@v1
+    uses: helkasko/asti-github-workflows/.github/workflows/auto-rebase-dependabot-pr.yml@v1
     secrets:
       github-token: ${{ secrets.GITHUB_TOKEN }}
 ```
@@ -120,7 +120,7 @@ jobs:
       issues: write
       pull-requests: write
       repository-projects: write
-    uses:  helkasko/asti-github-workflows/.github/workflows/dependabot-auto-approve.yml@v1
+    uses: helkasko/asti-github-workflows/.github/workflows/dependabot-auto-approve.yml@v1
     secrets:
       github-token: ${{ secrets.GITHUB_TOKEN }}
 ```
@@ -140,7 +140,7 @@ jobs:
       issues: write
       pull-requests: write
       repository-projects: write
-    uses:  helkasko/asti-github-workflows/.github/workflows/dependabot-auto-label.yml@v1
+    uses: helkasko/asti-github-workflows/.github/workflows/dependabot-auto-label.yml@v1
     secrets:
       github-token: ${{ secrets.GITHUB_TOKEN }}
       personal-access-token: ${{ secrets.KASKOASTI_INFRA_PERSONAL_ACCESS_TOKEN }}
@@ -159,7 +159,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-    uses:  helkasko/asti-github-workflows/.github/workflows/dependabot-auto-merge.yml@v1
+    uses: helkasko/asti-github-workflows/.github/workflows/dependabot-auto-merge.yml@v1
     secrets:
       personal-access-token: ${{ secrets.KASKOASTI_INFRA_PERSONAL_ACCESS_TOKEN }}
 ```
