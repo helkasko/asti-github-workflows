@@ -3,6 +3,18 @@
 This repository contains ASTI's reusable GitHub workflows. Note that this repository is temporarily public and will be
 made private as soon as defining reusable workflows in private repositories is supported (see [this issue](https://github.com/github/roadmap/issues/51)).
 
+- [Requirements](#requirements)
+- [Usage](#usage)
+  - [Auto-rebase Dependabot PR](#auto-rebase-dependabot-pr)
+  - [Dependabot auto-approve](#dependabot-auto-approve)
+  - [Dependabot auto-label](#dependabot-auto-label)
+  - [Dependabot auto-merge](#dependabot-auto-merge)
+- [Provided reusable workflows](#provided-reusable-workflows)
+  - [Auto-rebase Dependabot PR](#auto-rebase-dependabot-pr-1)
+  - [Dependabot auto-approve](#dependabot-auto-approve-1)
+  - [Dependabot auto-label](#dependabot-auto-label-1)
+  - [Dependabot auto-merge](#dependabot-auto-merge-1)
+
 ## Requirements
 
 These reusable workflows assume that Dependabot alerts, security updates, and version updates are being used. Thus, you
