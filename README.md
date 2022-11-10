@@ -64,3 +64,86 @@ done in the repository's CI pipeline. For instance, if Storybook is used in the 
 Storybook is successfully built in the CI pipeline. Consequently, you need to ensure that all relevant Yarn scripts and
 Gradle tasks are run in the CI pipeline. If, nonetheless, it turns out that Dependabot was able to automatically merge a
 breaking change to the target branch, think about how this can be avoided in the future by using an automated check.
+
+## Provided reusable workflows
+
+The following reusable workflows are provided by this repository.
+
+### Auto-rebase Dependabot PR
+
+This GitHub workflow is used to automatically rebase open Dependabot pull requests one at a time. Note that this
+workflow skips Dependabot PRs that are labelled with the `manual review needed` label. Currently, the
+`manual review needed` label is automatically only added to Dependabot PRs that include a major version update.
+
+**NOTE!** For this workflow to work properly, the `rebase-strategy` setting should be set to `disabled` in the
+`dependabot.yml` configuration file.
+
+By default, Dependabot already automatically rebases open pull requests when it detects any changes to a pull request.
+However, this seems to work only when conflicts emerge between the PR and the target branch. Thus, when the
+`Require branches to be up to date before merging` setting is enabled in GitHub, Dependabot doesn't always automatically
+rebase a PR if there are no conflicts between the PR and the target branch despite the PR not being up-to-date. Thus,
+the only way to trigger a rebase for these Dependabot PRs is to manually rebase the PR, e.g., by commenting
+`@dependabot rebase` on the PR.
+
+Additionally, another problem with Dependabot's automatic rebase is that it doesn't trigger the rebases sequentially
+but rather concurrently. This, in turn, causes a lot of unnecessary CI builds when the
+`Require branches to be up to date before merging` setting is enabled since a PR might be rebased multiple times (see
+[this issue](https://github.com/dependabot/dependabot-core/issues/2204)). To mitigate this, this GitHub action is
+triggered on each push to the master / main branch and triggers Dependabot to only rebase the oldest PR. This way, you
+can ensure that the Dependabot PRs are only rebased one at a time, i.e., sequentially and thus minimizing the amount of
+rebases and CI builds needed. For instance, assuming that Dependabot opens 5 PRs, the amount of CI runs with
+Dependabot's default rebase mechanism compared to this workflow would be as follows:
+- Using the default mechanism and assuming that Dependabot does an automatic rebase after each merge, you would end up
+  with 5+4+3+2+1=15 CI runs (one CI run for each PR when it is opened and one CI run for each remaining open PR when a
+  PR is merged).
+- Using this workflow, you would end up with 5+1+1+1+1=9 CI runs (one CI run for each PR when it is opened and one CI
+  run after each merged PR).
+
+**Known issues:**
+- Currently, this workflow doesn't work very well in the case that a CI run of one of the Dependabot PRs fails for some
+  reason. In that case, the automatic Dependabot PR merge and rebase process can get stuck and requires somebody to fix
+  the failing PR before the process can automatically continue. One possible solution would be to first process all
+  Dependabot PRs where the CI run has successfully completed and only after that process any Dependabot PRs where the
+  CI run has failed.
+
+### Dependabot auto-approve
+
+This GitHub workflow automatically approves Dependabot PRs. Note that this workflow only approves PRs that are concerned
+with updating a minor or a patch version of a dependency. Thus, this workflow doesn't automatically approve PRs that are
+concerned with a major version update since a major version update typically requires a manual review to ensure that
+there are no breaking changes. Consequently, this workflow labels such PRs with the `manual review needed` label. This
+label is automatically created by the workflow if it doesn't already exist so there's no need to create the label
+manually beforehand.
+
+### Dependabot auto-label
+
+This GitHub workflow helps in automatically categorizing the Dependabot PRs using labels. Using this workflow isn't
+required but can be useful to more easily get a better understanding of what type of an update a PR is concerned with
+without having to manually dig the info from the PR itself.
+
+This workflow relies on the [Dependabot Fetch Metadata](https://github.com/dependabot/fetch-metadata) GitHub action and
+labels the Dependabot PRs with the following labels:
+
+- `development` - Related to development code, e.g., updating a development dependency
+- `production` - Related to production code, e.g., updating a production dependency
+- `security` - Related to security, e.g., fixing a security vulnerability in a dependency update
+- `transitive` - Related to the update of a transitive, i.e., indirect dependency
+
+Note that this workflow creates the labels automatically if they don't already exist. Thus, it's not necessary to create
+the labels manually beforehand.
+
+**NOTE!** Labeling security-related PRs requires using the `alert-lookup` setting of the `Dependabot Fetch Metadata`
+GitHub action. This in turn requires using a personal access token with the `security_events` scope when using the
+workflow. Also, it's necessary to give the user whose personal access token is used access to security alerts (see
+[Granting access to security alerts](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/enabling-features-for-your-repository/managing-security-and-analysis-settings-for-your-repository#granting-access-to-security-alerts)).
+
+### Dependabot auto-merge
+
+This GitHub workflow automatically enables auto-merge for a Dependabot PR. In other words, when auto-merge has been
+enabled for a PR, the PR will automatically be merged once all of the required status checks complete successfully. Note
+that this workflow enables auto-merge only for PRs that are concerned with updating a minor or a patch version of a
+dependency.
+
+**NOTE!** For ensuring that Dependabot can enable auto-merge when the `Restrict who can push to matching branches`
+setting has been enabled, you need to make sure to provide the workflow a personal access token of a user who has access
+to the repository.
