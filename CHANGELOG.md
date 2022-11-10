@@ -29,6 +29,9 @@ using the prefix _INTERNAL:_ (see [this](https://github.com/olivierlacan/keep-a-
   a bit easier (based on the [keep a changelog](https://keepachangelog.com) conventions)
 - _INTERNAL:_ A file defining the [code owners](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners)
   who are responsible for the repository
+- _INTERNAL:_ Versioning for `asti-github-workflows` based on [Semantic Versioning](https://semver.org) so that it's
+  easier to understand what type of changes each release contain and to better communicate breaking changes
+- _INTERNAL:_ Instructions for publishing a new release
 
 ## <a name="1.1.0"/>[1.1.0] - 2022-11-09
 
