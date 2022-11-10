@@ -14,6 +14,10 @@ made private as soon as defining reusable workflows in private repositories is s
   - [Dependabot auto-approve](#dependabot-auto-approve-1)
   - [Dependabot auto-label](#dependabot-auto-label-1)
   - [Dependabot auto-merge](#dependabot-auto-merge-1)
+- [Development](#development)
+  - [Versioning](#versioning)
+  - [Publishing a new release](#publishing-a-new-release)
+- [Changelog](#changelog)
 
 ## Requirements
 
@@ -242,3 +246,46 @@ dependency.
 **NOTE!** For ensuring that Dependabot can enable auto-merge when the `Restrict who can push to matching branches`
 setting has been enabled, you need to make sure to provide the workflow a personal access token of a user who has access
 to the repository.
+
+## Development
+
+### Versioning
+
+The ASTI reusable GitHub workflows adhere to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+### Publishing a new release
+
+To publish a new version, follow these steps:
+
+- Create a new PR for incrementing the version
+- Make sure that you've listed your changes in the [changelog](CHANGELOG.md). A good practice is to list your changes
+  during development under the `Unreleased` title. That way, you can easily move the list under the correct version when
+  it's time to increment the version.
+- Based on Semantic Versioning, decide what's the correct version number for the new version and add the new version to
+  the [changelog](CHANGELOG.md).
+
+Ask for another developer to review your PR. Once the PR has been merged to `main`, remember to tag the merge commit in
+the `main` branch with the new version:
+
+- Create an annotated tag: `git tag -s -a v1.x.x -m "v1.x.x"` (**NOTE!** Make sure that you create an annotated tag
+  which contains, e.g., author metadata. Also, make sure that you tag the correct commit. If you haven't configured PGP
+  signing, you can remove the `-s` flag).
+- Push the tag to GitHub: `git push origin v1.x.x`
+- Create a new release (remember to replace the version number with the correct version):
+  ```sh
+  gh release create \
+    "v1.x.x" \
+    --notes "See [changelog for version v1.x.x](https://github.com/helkasko/asti-github-workflows/blob/main/CHANGELOG.md#v1.x.x)."
+  ```
+- Update the `v1` tag to point to the new version:
+  ```sh
+  git fetch --all --tags
+  git checkout v1.x.x # Check out the latest release
+  git tag -f -s -a v1 -m "v1" # Force update the tracking tag to point to the latest release
+  git push -f origin v1
+  ```
+
+## Changelog
+
+This project uses a changelog to keep track of all notable changes between versions. See [CHANGELOG](CHANGELOG.md) for
+more details.
