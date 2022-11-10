@@ -65,6 +65,89 @@ Storybook is successfully built in the CI pipeline. Consequently, you need to en
 Gradle tasks are run in the CI pipeline. If, nonetheless, it turns out that Dependabot was able to automatically merge a
 breaking change to the target branch, think about how this can be avoided in the future by using an automated check.
 
+## Usage
+
+### Auto-rebase Dependabot PR
+
+Create a file `.github/workflows/auto-rebase-dependabot-pr.yml` with the following content (replace `master` with `main`
+if `main` is your default target branch):
+
+```yml
+name: Auto-rebase Dependabot PR
+on:
+  push:
+    branches: [master]
+
+jobs:
+  rebase-dependabot-pr:
+    permissions:
+      contents: read
+      issues: read
+      pull-requests: write
+    uses:  helkasko/asti-github-workflows/.github/workflows/auto-rebase-dependabot-pr.yml@v1
+    secrets:
+      github-token: ${{ secrets.GITHUB_TOKEN }}
+```
+
+### Dependabot auto-approve
+
+Create a file `.github/workflows/dependabot-auto-approve.yml` with the following content:
+
+```yml
+name: Dependabot auto-approve
+on: pull_request
+
+jobs:
+  approve-pr:
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
+      repository-projects: write
+    uses:  helkasko/asti-github-workflows/.github/workflows/dependabot-auto-approve.yml@v1
+    secrets:
+      github-token: ${{ secrets.GITHUB_TOKEN }}
+```
+
+### Dependabot auto-label
+
+Create a file `.github/workflows/dependabot-auto-label.yml` with the following content:
+
+```yml
+name: Dependabot auto-label
+on: pull_request
+
+jobs:
+  label-pr:
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
+      repository-projects: write
+    uses:  helkasko/asti-github-workflows/.github/workflows/dependabot-auto-label.yml@v1
+    secrets:
+      github-token: ${{ secrets.GITHUB_TOKEN }}
+      personal-access-token: ${{ secrets.KASKOASTI_INFRA_PERSONAL_ACCESS_TOKEN }}
+```
+
+### Dependabot auto-merge
+
+Create a file `.github/workflows/dependabot-auto-merge.yml` with the following content:
+
+```yml
+name: Dependabot auto-merge
+on: pull_request
+
+jobs:
+  merge-pr:
+    permissions:
+      contents: write
+      pull-requests: write
+    uses:  helkasko/asti-github-workflows/.github/workflows/dependabot-auto-merge.yml@v1
+    secrets:
+      personal-access-token: ${{ secrets.KASKOASTI_INFRA_PERSONAL_ACCESS_TOKEN }}
+```
+
 ## Provided reusable workflows
 
 The following reusable workflows are provided by this repository.
