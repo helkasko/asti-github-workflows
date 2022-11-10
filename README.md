@@ -275,7 +275,7 @@ the `main` branch with the new version:
   ```sh
   gh release create \
     "v1.x.x" \
-    --notes "See [changelog for version v1.x.x](https://github.com/helkasko/asti-github-workflows/blob/main/CHANGELOG.md#v1.x.x)."
+    --notes "See [changelog for version v1.x.x](https://github.com/helkasko/asti-github-workflows/blob/main/CHANGELOG.md#1.x.x)."
   ```
 - Update the `v1` tag to point to the new version:
   ```sh
