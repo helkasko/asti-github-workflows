@@ -14,6 +14,8 @@ made private as soon as defining reusable workflows in private repositories is s
   - [Dependabot auto-approve](#dependabot-auto-approve-1)
   - [Dependabot auto-label](#dependabot-auto-label-1)
   - [Dependabot auto-merge](#dependabot-auto-merge-1)
+- [Development](#development)
+- [Changelog](#changelog)
 
 ## Requirements
 
@@ -242,3 +244,10 @@ dependency.
 **NOTE!** For ensuring that Dependabot can enable auto-merge when the `Restrict who can push to matching branches`
 setting has been enabled, you need to make sure to provide the workflow a personal access token of a user who has access
 to the repository.
+
+## Development
+
+## Changelog
+
+This project uses a changelog to keep track of all notable changes between versions. See [CHANGELOG](CHANGELOG.md) for
+more details.
