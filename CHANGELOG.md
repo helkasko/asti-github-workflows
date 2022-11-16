@@ -18,6 +18,8 @@ using the prefix _INTERNAL:_ (see [this](https://github.com/olivierlacan/keep-a-
 
 <!-- List the changes in your PR under the Unreleased title. You can also copy this list to your PR summary. -->
 
+## <a name="1.2.2"/>[1.2.2] - 2022-11-16
+
 ### Fixed
 
 - The `Dependabot auto-label` and `Dependabot auto-merge` workflows failing when pushing custom changes to a Dependabot
@@ -79,6 +81,7 @@ API changes.
   requests making it easier to reuse these common workflows without having to duplicate them in each using repository.
   For more information, see the [Provided reusable workflows](README.md#provided-reusable-workflows) in the README.
 
+[1.2.2]: https://github.com/helkasko/asti-github-workflows/compare/v1.2.1...v1.2.2
 [1.2.1]: https://github.com/helkasko/asti-github-workflows/compare/v1.2.0...v1.2.1
 [1.2.0]: https://github.com/helkasko/asti-github-workflows/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/helkasko/asti-github-workflows/compare/v1.0.0...v1.1.0
