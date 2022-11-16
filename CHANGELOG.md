@@ -18,6 +18,25 @@ using the prefix _INTERNAL:_ (see [this](https://github.com/olivierlacan/keep-a-
 
 <!-- List the changes in your PR under the Unreleased title. You can also copy this list to your PR summary. -->
 
+### Fixed
+
+- The `Dependabot auto-label` and `Dependabot auto-merge` workflows failing when pushing custom changes to a Dependabot
+  PR.
+
+  These two workflows rely on the given personal access token (PAT) and if the PAT has only been defined in the
+  Dependabot secrets, any workflow runs triggered by other than Dependabot don't have access to the PAT resulting in the
+  workflows failing. One option would be to define the PAT in the action secrets so that all workflow runs would have
+  access to the secret regardless of who triggered the workflows.
+
+  However, when there are custom changes to a Dependabot PR it might be more reasonable to skip running the workflows
+  altogether. For instance, in that case, it might be more reasonable to require a manual approval and merge of the
+  Dependabot PR. Also, it's unnecessary to run the `Dependabot auto-label` workflow since it should've been run already
+  the first time the PR was created.
+
+  So, the issue has been fixed by skipping the workflows for any custom commits in a Dependabot PR. This has been
+  achieved by checking the workflow triggerer instead of the pull request author when deciding whether the workflow
+  should be run.
+
 ## <a name="1.2.1"/>[1.2.1] - 2022-11-11
 
 ### Fixed
