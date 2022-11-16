@@ -13,8 +13,11 @@ on:
 jobs:
   approve-pr:
     runs-on: ubuntu-latest
-    # Checking the author will prevent the action run failing on non-Dependabot PRs
-    if: ${{ github.event.pull_request.user.login == 'dependabot[bot]' }}
+    # Checking the workflow triggerer will prevent the workflow run failing on non-Dependabot commits and PRs. Checking
+    # the PR author isn't sufficient since it might be necessary to push commits to a Dependabot PR. In that case, it's
+    # best to skip running this workflow since the original Dependabot PR has been edited and it might be reasonable to
+    # do a manual approval of the custom changes.
+    if: ${{ github.actor == 'dependabot[bot]' }}
     steps:
       - name: Dependabot metadata
         id: dependabot-metadata

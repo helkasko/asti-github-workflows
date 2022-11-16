@@ -12,7 +12,13 @@ on:
 jobs:
   merge-pr:
     runs-on: ubuntu-latest
-    if: ${{ github.event.pull_request.user.login == 'dependabot[bot]' }}
+    # Checking the workflow triggerer will prevent the workflow run failing on non-Dependabot commits and PRs. Checking
+    # the PR author isn't sufficient since it might be necessary to push commits to a Dependabot PR. In that case, it's
+    # best to skip running this workflow since the original Dependabot PR has been edited and it might be reasonable to
+    # do a manual merge of the Dependabot PR with the custom changes. Running this workflow for other than Dependabot's
+    # commits would also require adding the given personal access token secret to the action's secrets instead of the
+    # Dependabot secrets.
+    if: ${{ github.actor == 'dependabot[bot]' }}
     steps:
       - name: Dependabot metadata
         id: dependabot-metadata

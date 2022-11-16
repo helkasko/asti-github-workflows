@@ -15,7 +15,13 @@ on:
 jobs:
   label-pr:
     runs-on: ubuntu-latest
-    if: ${{ github.event.pull_request.user.login == 'dependabot[bot]' }}
+    # Checking the workflow triggerer will prevent the workflow run failing on non-Dependabot commits and PRs. Checking
+    # the PR author isn't sufficient since it might be necessary to push commits to a Dependabot PR. In that case, we
+    # can skip running the workflow since the workflow should've been run already once for the Dependabot PR and
+    # rerunning it isn't necessary if there are any custom changes. Running this workflow for other than Dependabot's
+    # commits would also require adding the given personal access token secret to the action's secrets instead of the
+    # Dependabot secrets.
+    if: ${{ github.actor == 'dependabot[bot]' }}
     steps:
       - name: Dependabot metadata
         id: dependabot-metadata
