@@ -1,0 +1,49 @@
+# This reusable GitHub workflow is used to calculate the dependencies for a Gradle project and submit the dependency
+# list to the GitHub Dependency Submission API in order to get Dependabot security alerts for the dependencies.
+#
+# GitHub's dependency graph uses static analysis to scan the dependencies from manifest files or lockfiles in
+# repositories. However, for some ecosystems and tools such as Gradle the dependencies cannot reliably be parsed
+# statically. As such, the GitHub dependency graph doesn't support these kinds of package ecosystems. For a list of
+# supported package ecosystems, see https://docs.github.com/en/code-security/supply-chain-security/understanding-your-software-supply-chain/about-the-dependency-graph#supported-package-ecosystems.
+#
+# Since the dependency graph is used as a basis for detecting vulnerable dependencies, it hasn't previously been
+# possible to get Dependabot security alerts for unsupported package ecosystems. However, GitHub has now added a new
+# Dependency Submission API which allows submitting the dynamically calculated dependency list to GitHub's dependency
+# graph. Thus, this workflow utilizes the gradle-dependency-submission action to submit the dependencies of a Gradle
+# project to the GitHub dependency graph.
+#
+# For more information, see
+# - https://github.blog/2022-06-17-creating-comprehensive-dependency-graph-build-time-detection/
+# - https://github.com/mikepenz/gradle-dependency-submission
+#
+# Adapted from: https://github.com/mikepenz/gradle-dependency-submission#configure-the-workflow
+name: Submit Gradle Dependencies
+on:
+  workflow_call:
+    secrets:
+      registry-url:
+        description: "The URL for the private Maven package registry"
+        required: true
+      registry-username:
+        description: "The username for the private Maven package registry"
+        required: true
+      registry-password:
+        description: "The password for the private Maven package registry"
+        required: true
+
+jobs:
+  submit-gradle-dependencies:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run Gradle Dependency Submission action
+        uses: mikepenz/gradle-dependency-submission@v0.8.3
+        with:
+          gradle-project-path: '.'
+          gradle-build-module: ':'
+        env:
+          # Set the registry credentials as environment variables.
+          # See: https://docs.gradle.org/current/userguide/build_environment.html#sec:project_properties
+          ORG_GRADLE_PROJECT_nexusUrl: ${{ secrets.registry-url }}
+          ORG_GRADLE_PROJECT_repoUser: ${{ secrets.registry-username }}
+          ORG_GRADLE_PROJECT_repoPassword: ${{ secrets.registry-password }}
