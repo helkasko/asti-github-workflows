@@ -9,11 +9,13 @@ made private as soon as defining reusable workflows in private repositories is s
   - [Dependabot auto-approve](#dependabot-auto-approve)
   - [Dependabot auto-label](#dependabot-auto-label)
   - [Dependabot auto-merge](#dependabot-auto-merge)
+  - [Gradle dependency submission](#gradle-dependency-submission)
 - [Provided reusable workflows](#provided-reusable-workflows)
   - [Auto-rebase Dependabot PR](#auto-rebase-dependabot-pr-1)
   - [Dependabot auto-approve](#dependabot-auto-approve-1)
   - [Dependabot auto-label](#dependabot-auto-label-1)
   - [Dependabot auto-merge](#dependabot-auto-merge-1)
+  - [Gradle dependency submission](#gradle-dependency-submission-1)
 - [Development](#development)
   - [Versioning](#versioning)
   - [Publishing a new release](#publishing-a-new-release)
@@ -164,6 +166,36 @@ jobs:
       personal-access-token: ${{ secrets.KASKOASTI_INFRA_PERSONAL_ACCESS_TOKEN }}
 ```
 
+### Gradle dependency submission
+
+Create a file `.github/workflows/gradle-dependency-submission.yml` with the following content:
+
+```yml
+name: Submit Gradle Dependencies
+# Trigger the workflow to run on each change to build.gradle since any changes to dependencies should be reflected in
+# the GitHub dependency graph. Also, in order to keep the dependency graph up-to-date in case there's no changes to
+# build.gradle for a longer period of time, trigger the workflow to run weekly.
+on:
+  push:
+    branches: [master]
+    paths: ['build.gradle']
+  schedule:
+    # Run every Saturday at 01:00 UTC
+    - cron: '0 1 * * 6'
+
+jobs:
+  submit-gradle-dependencies:
+    permissions:
+      # The Dependency Submission API requires write permission
+      contents: write
+    uses: helkasko/asti-github-workflows/.github/workflows/gradle-dependency-submission.yml@v1
+    secrets:
+      # Set the private Nexus registry credentials that are passed to Gradle
+      registry-url: <replace_this_with_the_registry_url>
+      registry-username: ${{ secrets.DEPENDABOT_NEXUS_USERNAME }}
+      registry-password: ${{ secrets.DEPENDABOT_NEXUS_PASSWORD }}
+```
+
 ## Provided reusable workflows
 
 The following reusable workflows are provided by this repository.
@@ -246,6 +278,26 @@ dependency.
 **NOTE!** For ensuring that Dependabot can enable auto-merge when the `Restrict who can push to matching branches`
 setting has been enabled, you need to make sure to provide the workflow a personal access token of a user who has access
 to the repository.
+
+### Gradle dependency submission
+
+This GitHub workflow is used to calculate the dependencies for a Gradle project and submit the resulting dependency list
+to the GitHub Dependency Submission API in order to get Dependabot security alerts for the dependencies.
+
+GitHub's dependency graph uses static analysis to scan the dependencies from manifest files or lockfiles in
+repositories. However, for some ecosystems and tools such as Gradle the dependencies cannot reliably be parsed
+statically. As such, the GitHub dependency graph doesn't support these kinds of package ecosystems. For a list of
+supported package ecosystems, see [the Supported package ecosystems section](https://docs.github.com/en/code-security/supply-chain-security/understanding-your-software-supply-chain/about-the-dependency-graph#supported-package-ecosystems)
+on GitHub.
+
+Since the dependency graph is used as a basis for detecting vulnerable dependencies, it hasn't previously been
+possible to get Dependabot security alerts for unsupported package ecosystems. However, GitHub has now added a new
+Dependency Submission API which allows submitting the dynamically calculated dependency list to GitHub's dependency
+graph (see [this blog post](https://docs.github.com/en/code-security/supply-chain-security/understanding-your-software-supply-chain/about-the-dependency-graph#supported-package-ecosystems)).
+Thus, this workflow utilizes the [gradle-dependency-submission](https://github.com/mikepenz/gradle-dependency-submission)
+GitHub action to submit the dependencies of a Gradle project to the GitHub dependency graph.
+
+**NOTE!** The `gradle-dependency-submission` GitHub action requires the project to use Gradle version 7.5+.
 
 ## Development
 
