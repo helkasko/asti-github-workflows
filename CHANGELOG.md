@@ -18,6 +18,13 @@ using the prefix _INTERNAL:_ (see [this](https://github.com/olivierlacan/keep-a-
 
 <!-- List the changes in your PR under the Unreleased title. You can also copy this list to your PR summary. -->
 
+### Added
+
+- A new reusable GitHub workflow for calculating the dependencies for a Gradle project and submitting the resulting
+  dependency list to the GitHub Dependency Submission API in order to get Dependabot security alerts for the
+  dependencies. For more information, see the [Provided reusable workflows](README.md#provided-reusable-workflows) in
+  the README.
+
 ## <a name="1.2.2"/>[1.2.2] - 2022-11-16
 
 ### Fixed

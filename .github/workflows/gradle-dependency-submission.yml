@@ -1,0 +1,35 @@
+# This reusable GitHub workflow is used to calculate the dependencies for a Gradle project and submit the resulting
+# dependency list to the GitHub Dependency Submission API in order to get Dependabot security alerts for the
+# dependencies.
+#
+# Adapted from: https://github.com/mikepenz/gradle-dependency-submission#configure-the-workflow
+name: Submit Gradle Dependencies
+on:
+  workflow_call:
+    secrets:
+      registry-url:
+        description: "The URL for the private Maven package registry"
+        required: true
+      registry-username:
+        description: "The username for the private Maven package registry"
+        required: true
+      registry-password:
+        description: "The password for the private Maven package registry"
+        required: true
+
+jobs:
+  submit-gradle-dependencies:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run Gradle Dependency Submission action
+        uses: mikepenz/gradle-dependency-submission@v0.8.3
+        with:
+          gradle-project-path: '.'
+          gradle-build-module: ':'
+        env:
+          # Set the registry credentials as environment variables.
+          # See: https://docs.gradle.org/current/userguide/build_environment.html#sec:project_properties
+          ORG_GRADLE_PROJECT_nexusUrl: ${{ secrets.registry-url }}
+          ORG_GRADLE_PROJECT_repoUser: ${{ secrets.registry-username }}
+          ORG_GRADLE_PROJECT_repoPassword: ${{ secrets.registry-password }}
