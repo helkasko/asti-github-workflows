@@ -18,6 +18,8 @@ using the prefix _INTERNAL:_ (see [this](https://github.com/olivierlacan/keep-a-
 
 <!-- List the changes in your PR under the Unreleased title. You can also copy this list to your PR summary. -->
 
+## <a name="1.3.0"/>[1.3.0] - 2022-12-23
+
 ### Added
 
 - A new reusable GitHub workflow for calculating the dependencies for a Gradle project and submitting the resulting
@@ -88,6 +90,7 @@ API changes.
   requests making it easier to reuse these common workflows without having to duplicate them in each using repository.
   For more information, see the [Provided reusable workflows](README.md#provided-reusable-workflows) in the README.
 
+[1.3.0]: https://github.com/helkasko/asti-github-workflows/compare/v1.2.2...v1.3.0
 [1.2.2]: https://github.com/helkasko/asti-github-workflows/compare/v1.2.1...v1.2.2
 [1.2.1]: https://github.com/helkasko/asti-github-workflows/compare/v1.2.0...v1.2.1
 [1.2.0]: https://github.com/helkasko/asti-github-workflows/compare/v1.1.0...v1.2.0
