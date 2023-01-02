@@ -18,6 +18,28 @@ using the prefix _INTERNAL:_ (see [this](https://github.com/olivierlacan/keep-a-
 
 <!-- List the changes in your PR under the Unreleased title. You can also copy this list to your PR summary. -->
 
+### Fixed
+
+- The `Submit Gradle Dependencies` workflow so that GitHub will process and send security alerts for the submitted
+  dependencies.
+
+  GitHub Dependency Graph has a limit on how big manifest files are processed including whether Dependabot alerts will
+  be sent for the manifest. Manifests over 0.5 MB in size are only processed for enterprise accounts (see
+  [this section](https://docs.github.com/en/code-security/supply-chain-security/understanding-your-software-supply-chain/troubleshooting-the-dependency-graph#are-there-limits-which-affect-the-dependency-graph-data)
+  in the GitHub docs).
+
+  This same limit also affects manifests sent through the Dependency Submission API. To restrict the size of the
+  manifest, the amount of dependencies needs to be restricted. By default, the `mikepenz/gradle-dependency-submission`
+  GitHub action processes the dependencies for all configurations which can result in a manifest that is too big. The
+  dependencies might still be shown in the GitHub UI on the Dependency Graph page without any errors. However, no
+  Dependabot alerts will be sent for the dependencies.
+
+  To restrict the size of the manifest, the `testCompileClasspath` configuration filter is used. Since the
+  `testImplementation` configuration extends the `implementation` configuration, the `testCompileClasspath`
+  configuration will also include the dependencies in the `compileClasspath` configuration. This way, the resulting
+  manifest will include production dependencies as well as dependencies needed for testing.
+- _INTERNAL:_ An incorrect link in the README file
+
 ## <a name="1.3.0"/>[1.3.0] - 2022-12-23
 
 ### Added

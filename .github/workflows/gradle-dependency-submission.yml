@@ -27,6 +27,21 @@ jobs:
         with:
           gradle-project-path: '.'
           gradle-build-module: ':'
+          # GitHub Dependency Graph has a limit on how big manifest files are processed including whether Dependabot
+          # alerts will be sent for the manifest. Manifests over 0.5 MB in size are only processed for enterprise
+          # accounts (see https://docs.github.com/en/code-security/supply-chain-security/understanding-your-software-supply-chain/troubleshooting-the-dependency-graph#are-there-limits-which-affect-the-dependency-graph-data).
+          #
+          # This same limit also affects manifests sent through the Dependency Submission API. To restrict the size of
+          # the manifest, the amount of dependencies needs to be restricted. By default, the
+          # mikepenz/gradle-dependency-submission GitHub action processes the dependencies for all configurations which
+          # can result in a manifest that is too big. The dependencies might still be shown in the GitHub UI on the
+          # Dependency Graph page without any errors. However, no Dependabot alerts will be sent for the dependencies.
+          #
+          # To restrict the size of the manifest, the "testCompileClasspath" configuration filter is used. Since the
+          # "testImplementation" configuration extends the "implementation" configuration, the "testCompileClasspath"
+          # configuration will also include the dependencies in the "compileClasspath" configuration. This way, the
+          # resulting manifest will include production dependencies as well as dependencies needed for testing.
+          gradle-build-configuration: testCompileClasspath
         env:
           # Set the registry credentials as environment variables.
           # See: https://docs.gradle.org/current/userguide/build_environment.html#sec:project_properties

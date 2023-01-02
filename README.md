@@ -293,7 +293,7 @@ on GitHub.
 Since the dependency graph is used as a basis for detecting vulnerable dependencies, it hasn't previously been
 possible to get Dependabot security alerts for unsupported package ecosystems. However, GitHub has now added a new
 Dependency Submission API which allows submitting the dynamically calculated dependency list to GitHub's dependency
-graph (see [this blog post](https://docs.github.com/en/code-security/supply-chain-security/understanding-your-software-supply-chain/about-the-dependency-graph#supported-package-ecosystems)).
+graph (see [this blog post](https://github.blog/2022-06-17-creating-comprehensive-dependency-graph-build-time-detection/)).
 Thus, this workflow utilizes the [gradle-dependency-submission](https://github.com/mikepenz/gradle-dependency-submission)
 GitHub action to submit the dependencies of a Gradle project to the GitHub dependency graph.
 
